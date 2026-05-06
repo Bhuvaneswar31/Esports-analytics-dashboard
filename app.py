@@ -277,28 +277,39 @@ with col8:
     st.metric("💳 Premium Users", f"{paid_users:,}")
 
 # =========================================================
-# REVENUE TREND
+# MONTHLY REVENUE TREND
 # =========================================================
 
 st.subheader("📈 Monthly Revenue Growth")
 
-monthly_rev = filtered_df.groupby(
-    filtered_df["Date"].dt.strftime("%b %Y")
-)["Revenue"].sum().reset_index()
+# Create proper monthly aggregation
+monthly_rev = (
+    filtered_df
+    .groupby(pd.Grouper(key="Date", freq="M"))["Revenue"]
+    .sum()
+    .reset_index()
+)
+
+# Format month labels
+monthly_rev["Month"] = monthly_rev["Date"].dt.strftime("%b %Y")
 
 fig1 = px.area(
     monthly_rev,
-    x="Date",
+    x="Month",
     y="Revenue",
     template="plotly_dark"
 )
 
-fig1.update_traces(line=dict(width=4))
+fig1.update_traces(
+    line=dict(width=4)
+)
 
 fig1.update_layout(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    height=420
+    height=420,
+    xaxis_title="Month",
+    yaxis_title="Revenue"
 )
 
 st.plotly_chart(fig1, use_container_width=True)
