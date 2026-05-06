@@ -374,62 +374,50 @@ with col10:
     st.plotly_chart(fig3, use_container_width=True)
 
 # =========================================================
-# DEVICE & CITY
+# CITY-WISE REVENUE MAP
 # =========================================================
 
-col11, col12 = st.columns(2)
+st.subheader("🌍 Regional Revenue Distribution")
 
-with col11:
+# City coordinates
+city_map = {
+    "Chennai": [13.0827, 80.2707],
+    "Bangalore": [12.9716, 77.5946],
+    "Mumbai": [19.0760, 72.8777],
+    "Delhi": [28.7041, 77.1025],
+    "Hyderabad": [17.3850, 78.4867]
+}
 
-    st.subheader("🌍 City-wise Revenue")
+# Revenue aggregation
+city_perf = filtered_df.groupby(
+    "City"
+)["Revenue"].sum().reset_index()
 
-    city_perf = filtered_df.groupby(
-        "City"
-    )["Revenue"].sum().reset_index()
+# Add coordinates
+city_perf["lat"] = city_perf["City"].apply(lambda x: city_map[x][0])
+city_perf["lon"] = city_perf["City"].apply(lambda x: city_map[x][1])
 
-    fig4 = px.bar(
-        city_perf,
-        x="City",
-        y="Revenue",
-        color="Revenue",
-        template="plotly_dark",
-        text_auto=True
-    )
+# Create map
+fig4 = px.scatter_mapbox(
+    city_perf,
+    lat="lat",
+    lon="lon",
+    size="Revenue",
+    color="Revenue",
+    hover_name="City",
+    hover_data={"Revenue":":,.0f"},
+    zoom=3.8,
+    size_max=45,
+    mapbox_style="carto-darkmatter"
+)
 
-    fig4.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        height=420
-    )
+fig4.update_layout(
+    paper_bgcolor="rgba(0,0,0,0)",
+    margin=dict(l=0, r=0, t=0, b=0),
+    height=500
+)
 
-    st.plotly_chart(fig4, use_container_width=True)
-
-with col12:
-
-    st.subheader("💻 Gaming Device Distribution")
-
-    device_dist = filtered_df["Device"].value_counts().reset_index()
-    device_dist.columns = ["Device", "Count"]
-
-    fig5 = px.pie(
-        device_dist,
-        names="Device",
-        values="Count",
-        template="plotly_dark"
-    )
-
-    fig5.update_traces(
-        textposition='inside',
-        textinfo='percent+label'
-    )
-
-    fig5.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        height=420
-    )
-
-    st.plotly_chart(fig5, use_container_width=True)
+st.plotly_chart(fig4, use_container_width=True)
 
 # =========================================================
 # SATISFACTION & STREAMING
