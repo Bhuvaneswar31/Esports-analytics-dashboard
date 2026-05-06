@@ -282,15 +282,15 @@ with col8:
 
 st.subheader("📈 Monthly Revenue Growth")
 
-# Create proper monthly aggregation
+# Monthly aggregation
 monthly_rev = (
     filtered_df
-    .groupby(pd.Grouper(key="Date", freq="M"))["Revenue"]
+    .groupby(pd.Grouper(key="Date", freq="MS"))["Revenue"]
     .sum()
     .reset_index()
 )
 
-# Format month labels
+# Month formatting
 monthly_rev["Month"] = monthly_rev["Date"].dt.strftime("%b %Y")
 
 fig1 = px.area(
